@@ -11,8 +11,8 @@ public class Machine {
 	private int i;
 	
 	// Special registers for time and sound. 8 bits.
-	private short sound;
-	private short timers;
+	private byte st;  // sound timer.
+	private byte dt;  // delay timer.
 	
 	// Program counter. 16 bits.
 	private int pc;
@@ -49,20 +49,20 @@ public class Machine {
 		this.i = i;
 	}
 
-	public short getSound() {
-		return sound;
+	public byte getSt() {
+		return st;
 	}
 
-	public void setSound(short sound) {
-		this.sound = sound;
+	public void setSt(byte st) {
+		this.st = st;
 	}
 
-	public short getTimers() {
-		return timers;
+	public byte getDt() {
+		return dt;
 	}
 
-	public void setTimers(short timers) {
-		this.timers = timers;
+	public void setDt(byte dt) {
+		this.dt = dt;
 	}
 
 	public int getPc() {
