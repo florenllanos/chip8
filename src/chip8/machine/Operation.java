@@ -1,6 +1,6 @@
 package chip8.machine;
 
-public class Process {
+public class Operation {
 	
 	int addr, nibble, x, y, kk;
 	

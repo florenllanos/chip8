@@ -5,13 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import chip8.machine.Machine;
-import chip8.machine.Process;
+import chip8.machine.Operation;
 
 public class Main {
 	
 	public static void main(String[] args) {		
 		Machine machine = new Machine();
-		Process process = new Process();
+		Operation process = new Operation();
 		
 		Main main = new Main();
 
