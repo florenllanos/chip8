@@ -1,11 +1,12 @@
 package chip8.machine;
 
 public class Machine {
+	// TODO: Constructor with init values in registers (0), st, dt, ...
 	// Memory chip8 space.
 	private byte[] memory = new byte[4096];
 	
 	// General purpose register, 8 bits. 16 since v[0x01] until v[0x0F]
-	private byte[] v = new byte[15];
+	private byte[] v = new byte[16];
 	
 	// Special register i, 16 bits (normaly are only used the lowest 12 bits). To store memory address mainly.
 	private int i;
@@ -18,19 +19,26 @@ public class Machine {
 	private int pc;
 	
 	// Stack pointer. 8 bits.
-	private int sp;
+	private byte sp;
 	
 	// Stack 16 of 16 bits.
 	private int[] stack = new int[15];
 	
 	// Getters and Setters.
-	// TODO: Check to use Lombok in future or record class instead a classic Bean class.
 	public byte[] getMemory() {
 		return memory;
+	}
+	
+	public byte getMemory(int i) {
+		return memory[i];
 	}
 
 	public void setMemory(byte[] memory) {
 		this.memory = memory;
+	}
+	
+	public void setMemory(int i, byte memory) {
+		this.memory[i] = memory;
 	}
 
 	public byte getV(int i) {
@@ -73,19 +81,19 @@ public class Machine {
 		this.pc = pc;
 	}
 
-	public int getSp() {
+	public byte getSp() {
 		return sp;
 	}
 
-	public void setSp(int sp) {
+	public void setSp(byte sp) {
 		this.sp = sp;
 	}
 
-	public int[] getStack() {
-		return stack;
+	public int getStack(int i) {
+		return stack[i];
 	}
 
-	public void setStack(int[] stack) {
-		this.stack = stack;
+	public void setStack(int i, int stackValue) {
+		this.stack[i] = stackValue;
 	}	
 }

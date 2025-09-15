@@ -31,6 +31,7 @@ public class Main {
 					byteBajo = mem[machine.getPc()];					
 				}				
 				
+				//TODO: Rename instruccion to english, instruction.
 				int instruccion = byteAlto << 8 | byteBajo;
 
 				process.executeInstruction(machine, instruccion);
@@ -52,6 +53,7 @@ public class Main {
 	private void readROMToMemory(Machine m) throws FileNotFoundException, IOException {
 		String rutaArchivo = "C:/tmp/pd.ch8";
 		FileInputStream fis = new FileInputStream(rutaArchivo);
+		// TODO: Programs must start at 0x200. Prior memory location are for the interpreter.
 		m.setMemory(fis.readAllBytes());
 		fis.close();
 	}
