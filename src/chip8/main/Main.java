@@ -30,11 +30,10 @@ public class Main {
 				if (machine.getPc() < mem.length) { 
 					byteBajo = mem[machine.getPc()];					
 				}				
-				
-				//TODO: Rename instruccion to english, instruction.
-				int instruccion = byteAlto << 8 | byteBajo;
 
-				process.executeInstruction(machine, instruccion);
+				int instruction = byteAlto << 8 | byteBajo;
+
+				process.executeInstruction(machine, instruction);
 				machine.setPc(++i);				
 			}
 
