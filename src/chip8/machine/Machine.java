@@ -45,7 +45,7 @@ public class Machine {
 		return v[i];
 	}
 
-	public void setV(int ib, byte v) {
+	public void setV(int i, byte v) {
 		this.v[i] = v;
 	}
 
