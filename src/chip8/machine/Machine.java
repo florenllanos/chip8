@@ -1,7 +1,7 @@
 package chip8.machine;
 
 public class Machine {
-	// TODO: Constructor with init values in registers (0), st, dt, ...
+
 	// Memory chip8 space.
 	private byte[] memory = new byte[4096];
 	
@@ -9,17 +9,17 @@ public class Machine {
 	private byte[] v = new byte[16];
 	
 	// Special register i, 16 bits (normaly are only used the lowest 12 bits). To store memory address mainly.
-	private int i;
+	private int i = 0;
 	
 	// Special registers for time and sound. 8 bits.
-	private byte st;  // sound timer.
-	private byte dt;  // delay timer.
+	private byte st = 0;  // sound timer.
+	private byte dt = 0;  // delay timer.
 	
 	// Program counter. 16 bits.
-	private int pc;
+	private int pc = 0;
 	
 	// Stack pointer. 8 bits.
-	private byte sp;
+	private byte sp = 0;
 	
 	// Stack 16 of 16 bits.
 	private int[] stack = new int[15];
