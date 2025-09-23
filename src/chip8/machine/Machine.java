@@ -41,6 +41,10 @@ public class Machine {
 		this.memory[i] = memory;
 	}
 
+	public byte[] getV() {
+		return v;
+	}
+	
 	public byte getV(int i) {
 		return v[i];
 	}
