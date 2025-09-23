@@ -96,6 +96,10 @@ public class Machine {
 	public int getStack(int i) {
 		return stack[i];
 	}
+	
+	public int[] getStack() {
+		return stack;
+	}
 
 	public void setStack(int i, int stackValue) {
 		this.stack[i] = stackValue;
