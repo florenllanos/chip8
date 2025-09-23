@@ -1,6 +1,13 @@
 package chip8.machine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import chip8.main.Main;
+
 public class Operation {
+	
+	private final Logger logger = LoggerFactory.getLogger(Operation.class);
 	
 	int addr, nibble, x, y, kk;
 	
@@ -9,7 +16,7 @@ public class Operation {
 	 */
 	public void executeInstruction(Machine machine, int instruction) {
 		// OP variables (bitwise expressions)
-		int op = (instruction >> 12) & 0xF;
+		int op = (instruction >> 12) & 0xF;		
 		
 		switch (op) {
 			case 0:
@@ -61,7 +68,7 @@ public class Operation {
 				doOP0xF(machine, instruction);
 				break;
 			default:
-				System.out.println("ERROR");
+				logger.debug("OP doesn't exists. OP {}", op);
 				break;
 		}
 	}
@@ -80,14 +87,14 @@ public class Operation {
 		addr = instruccion & 0xFFF;
 		if (addr == 0x0E0) { // CLS
 			//TODO: Pending to implement CLS.
-			System.out.println("OP CLS");
+			logger.debug("0x0E0 CLS");
 		} else if (addr == 0x0EE) { //RET
 			//TODO: Pending to implement RET.
-			System.out.println("OP RET");					
+			logger.debug("0x0EE RET");
 		} else { // 0x0nnn, Jump to a machine code routine at nnn.
-			//TODO: We must control that this addr is only for SYS: from 0x000 to 0x1FF memory space (interpreter space).
+			//TODO: We must control that this addr is only for SYS: from 0x000 to 0x1FF memory space (interpreter space).			
 			machine.setPc(addr);
-			System.out.println("OP SYS addr " + Integer.toHexString(addr));
+			logger.debug("0x0nnn addr {}", Integer.toHexString(addr));
 		}
 	}
 	
@@ -96,7 +103,7 @@ public class Operation {
 		addr = instruction & 0xFFF;
 		//TODO: Control that addr will be upper of 0x200 (addres where must start user programs).
 		machine.setPc(addr);
-		System.out.println("OP 1 JP addr " + Integer.toHexString(addr));
+		//logger.debug("0x1 {}", Integer.toHexString(addr));
 	}
 	
 	// 0x2nnn: Call subroutine at nnn (addr). Involved stack use adding current PC in the stack and then point PC to addr (subroutine addr).
@@ -109,7 +116,7 @@ public class Operation {
 		// PC to subroutine address.
 		machine.setPc(addr);
 		
-		System.out.println("OP 2 CALL addr " + Integer.toHexString(addr));
+		//logger.debug("0x2 {}", Integer.toHexString(addr));
 	}
 	
 	// 0x3xkk: Skip next instruction if V[x] == kk and and PC = PC + 2.
@@ -119,7 +126,7 @@ public class Operation {
 		
 		if (machine.getV(x) == kk) machine.setPc(machine.getPc() + 2);
 		
-		System.out.println("OP 3 SE Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
+		//System.out.println("OP 3 SE Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
 
 	// 0x4xkk: Skip next instruction if V[x] != kk and PC = PC + 2.
@@ -129,7 +136,7 @@ public class Operation {
 		
 		if (machine.getV(x) != kk) machine.setPc(machine.getPc() + 2);
 		
-		System.out.println("OP 4 SNE Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
+		//System.out.println("OP 4 SNE Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
 	
 	// 0x5xy0: Skip next instruction if V[x] == V[y] and PC = PC + 2.
@@ -139,7 +146,7 @@ public class Operation {
 		
 		if (machine.getV(x) == machine.getV(y)) machine.setPc(machine.getPc() + 2);
 		
-		System.out.println("OP 5 SE Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 5 SE Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 
 	// 0x6xkk: V[x] = kk.
@@ -149,7 +156,7 @@ public class Operation {
 		
 		machine.setV(x, (byte) kk);
 		
-		System.out.println("OP 6 LD Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
+		//System.out.println("OP 6 LD Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
 	
 	// 0x7xkk: V[x] = V[x] + kk. 
@@ -159,7 +166,7 @@ public class Operation {
 		
 		machine.setV(x, (byte) (machine.getV(x) + kk));
 		
-		System.out.println("OP 7 ADD Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
+		//System.out.println("OP 7 ADD Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
 	
 	// Several instructions depending of the lowest 4 bits of the instruction (nibble variable).
@@ -196,8 +203,9 @@ public class Operation {
 				doOP0x8xyE(machine, x, y);
 				break;
 			default:
-				System.out.println("Error instrucción 8, no existe");
+				logger.error("Error, OP 0x8 doesn't exists {}", Integer.toHexString(nibble));
 		}
+		logger.error("Error, OP 0x8 out of switch");
 	}
 
 	/*
@@ -207,32 +215,32 @@ public class Operation {
 	// 0x8xy0: Vx = Vy.
 	private void doOP0x8xy0(Machine machine, int x, int y) {
 		machine.setV(x, machine.getV(y));
-		System.out.println("OP 8xy0 LD Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy0 LD Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// 0x8xy1: Vx = Vx | Vy (OR bitwise operation).
 	private void doOP0x8xy1(Machine machine, int x, int y) {		
 		machine.setV(x, (byte) (machine.getV(x) | machine.getV(y)));
-		System.out.println("OP 8xy1 OR Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy1 OR Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 
 	// 0x8xy2: Vx = Vx & Vy (AND bitwise operation).
 	private void doOP0x8xy2(Machine machine, int x, int y) {
 		machine.setV(x, (byte) (machine.getV(x) & machine.getV(y)));
-		System.out.println("OP 8xy2 AND Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy2 AND Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// 0x8xy3: Vx = Vx ^ Vy (XOR bitwise operation).
 	private void doOP0x8xy3(Machine machine, int x, int y) {		
 		machine.setV(x, (byte) (machine.getV(x) ^ machine.getV(y)));
-		System.out.println("OP 8xy3 XOR Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy3 XOR Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 
 	// 0x8xy4: Vx = Vx + Vy, set VF = carry.
 	private void doOP0x8xy4(Machine machine, int x, int y) {
 		byte res = (byte) ((machine.getV(x) + machine.getV(y)) > machine.getV(x) ? 1 : 0);
 		machine.setV(x, res);
-		System.out.println("OP 8xy4 ADD Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy4 ADD Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// 0x8xy5: Vx > Vy, then VF is set to 1. Vx = Vx - Vy.
@@ -240,7 +248,7 @@ public class Operation {
 		byte res = (byte) (machine.getV(x) > machine.getV(y) ? 1 : 0);
 		machine.setV(0xF, res);
 		machine.setV(x, (byte) (machine.getV(x) - machine.getV(y)));
-		System.out.println("OP 8xy5 SUB Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy5 SUB Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// Least-significant bit of Vx is 1, VF = 1. Vx / 2.
@@ -248,7 +256,7 @@ public class Operation {
 		byte res = (byte) (((machine.getV(x) & 0xF) == 0x1) ? 1 : 0);
 		machine.setV(0xF, res);
 		machine.setV(x, (byte) (machine.getV(x) >> 1));
-		System.out.println("OP 8xy6 SHR Vx " + Integer.toHexString(machine.getV(x)) + " {, Vy} " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy6 SHR Vx " + Integer.toHexString(machine.getV(x)) + " {, Vy} " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// Vy > Vx, then VF is set to 1. Vx = Vy - Vx.
@@ -256,14 +264,14 @@ public class Operation {
 		byte res = (byte) (machine.getV(y) > machine.getV(x) ? 1 : 0);
 		machine.setV(0xF, res);
 		machine.setV(y, (byte) (machine.getV(y) - machine.getV(x)));
-		System.out.println("OP 8xy7 SUBN Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xy7 SUBN Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// Most-significant bit of Vx is 1, then VF is set to 1. Vx is multiplied by 2.
 	private void doOP0x8xyE(Machine machine, int x, int y) {
 		byte res = (byte) ((machine.getV(x) & 0x80) == 0x80 ? 1 : 0);
 		machine.setV(0xF, res);
-		System.out.println("OP 8xyE SHL Vx " + Integer.toHexString(machine.getV(x)) + " {, Vy} " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 8xyE SHL Vx " + Integer.toHexString(machine.getV(x)) + " {, Vy} " + Integer.toHexString(machine.getV(y)));
 	}
 	// ********* End doOP0x8 cases
 	
@@ -274,21 +282,21 @@ public class Operation {
 		
 		if (machine.getV(x) != machine.getV(y)) machine.setPc(machine.getPc() + 2);
 		
-		System.out.println("OP 9 SNE Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
+		//System.out.println("OP 9 SNE Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)));
 	}
 	
 	// 0xAnnn: I = nnn (addr).
 	private void doOP0xA(Machine machine, int instruction) {
 		addr = instruction & 0xFFF;
 		machine.setI(addr);
-		System.out.println("OP A LD " + Integer.toHexString(machine.getI()) + " addr " + Integer.toHexString(addr));
+		//System.out.println("OP A LD " + Integer.toHexString(machine.getI()) + " addr " + Integer.toHexString(addr));
 	}
 
 	// 0xBnnn: PC = nnn + V0.
 	private void doOP0xB(Machine machine, int instruction) {
 		addr = instruction & 0xFFF;
 		machine.setPc(addr + machine.getV(0));
-		System.out.println("OP B JP V0 " + Integer.toHexString(machine.getV(0)) + " addr " + Integer.toHexString(addr));
+		//System.out.println("OP B JP V0 " + Integer.toHexString(machine.getV(0)) + " addr " + Integer.toHexString(addr));
 	}
 	
 	// 0xCxkk: V[x] = random & kk.
@@ -297,7 +305,7 @@ public class Operation {
 		x = (instruction >> 8) & 0xF;
 		kk = instruction & 0xFF;
 		machine.setV(x, (byte) (kk & rnd));
-		System.out.println("OP C RND Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
+		//System.out.println("OP C RND Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
 	
 	// 0xDxyn: 
@@ -306,7 +314,8 @@ public class Operation {
 		x = (instruction >> 8) & 0xF;
 		y = (instruction >> 4) & 0xF;
 		nibble = instruction & 0xF;
-		System.out.println("OP D DRW Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)) + " nibble " + Integer.toHexString(nibble));
+		//System.out.println("OP D DRW Vx " + Integer.toHexString(machine.getV(x)) + " Vy " + Integer.toHexString(machine.getV(y)) + " nibble " + Integer.toHexString(nibble));
+		logger.debug("0xD operation related with drawing on the screen. x {}, y {}, nibble {}", Integer.toHexString(x), Integer.toHexString(y), Integer.toHexString(nibble));
 	}
 	
 	// 0xE
@@ -315,9 +324,11 @@ public class Operation {
 		x = (instruction >> 8) & 0xF;
 		nibble = instruction & 0xF;
 		if (nibble == 0xE) { // Ex9E
-			System.out.println("OP E SKP Vx " + Integer.toHexString(machine.getV(x)));
+			//System.out.println("OP E SKP Vx " + Integer.toHexString(machine.getV(x)));
+			logger.debug("0xEx9E operation related with keyboard. x {}, nibble {}", Integer.toHexString(x), Integer.toHexString(nibble));
 		} else { // ExA1
-			System.out.println("OP E SKNP Vx " + Integer.toHexString(machine.getV(x)));
+			//System.out.println("OP E SKNP Vx " + Integer.toHexString(machine.getV(x)));
+			logger.debug("0xExA1 operation related with keyboard. x {}, nibble {}", Integer.toHexString(x), Integer.toHexString(nibble));
 		}
 	}
 	
@@ -356,45 +367,47 @@ public class Operation {
 				doOP0xFx65(machine, x);
 				break;
 			default:
-				System.out.println("Error instrucción F, no existe");						
+				logger.error("Error, OP 0xF doesn't exists {}", kk);						
 		}
-		System.out.println("OP F");
+		//System.out.println("OP F");
+		logger.error("Error, OP 0xF out of switch");
 	}	
 
 	// 0x0Fx07: V[x] = DT.
 	private void doOP0xFx07(Machine machine, int x) {
 		machine.setV(x, machine.getDt());	
-		System.out.println("OP Fx07 LD Vx " + Integer.toHexString(machine.getV(x)) + " DT " + Integer.toHexString(machine.getDt()));
+		//System.out.println("OP Fx07 LD Vx " + Integer.toHexString(machine.getV(x)) + " DT " + Integer.toHexString(machine.getDt()));
 	}	
 
 	// 0xFxA: 
 	// TODO: OP related with keyboard.
 	private void doOP0xFxA(Machine machine, int x) {
-		System.out.println("OP Fx0A LD Vx " + Integer.toHexString(machine.getV(x)) + " Key press");
+		//System.out.println("OP Fx0A LD Vx " + Integer.toHexString(machine.getV(x)) + " Key press");
+		logger.error("0xFxA OP related with keyboard. x {}", Integer.toHexString(x));
 	}	
 
 	// OXFx15: DT = V[x].
 	private void doOP0xFx15(Machine machine, int x) {
 		machine.setDt(machine.getV(x));	
-		System.out.println("OP Fx15 LD DT Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx15 LD DT Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx18: ST = V[x].
 	private void doOP0xFx18(Machine machine, int x) {
 		machine.setSt(machine.getV(x));
-		System.out.println("OP Fx18 LD ST Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx18 LD ST Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx1E: I = I + V[x].
 	private void doOP0xFx1E(Machine machine, int x) {
 		machine.setI(machine.getI() + machine.getV(x));
-		System.out.println("OP Fx1E ADD I " + Integer.toHexString(machine.getI()) + " Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx1E ADD I " + Integer.toHexString(machine.getI()) + " Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx29:
 	// TODO: Op code related with drawing screen.
 	private void doOP0xFx29(Machine machine, int x) {
-		System.out.println("OP Fx29 LD F (Sprite instruction) Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx29 LD F (Sprite instruction) Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx33: Store in memory value V[x] in positions I, I+1, I+2.
@@ -403,7 +416,7 @@ public class Operation {
 		machine.setMemory(machine.getI(), (byte) ((valueVx / 100) % 10));  // Hundred place.
 		machine.setMemory(machine.getI() + 1, (byte) ((valueVx / 10) % 10)); // Decimal place.
 		machine.setMemory(machine.getI() + 2, (byte) (valueVx % 10)); // Unit place.
-		System.out.println("OP Fx33 LD BCD Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx33 LD BCD Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx55: Load in memory[I] registers value: V[0] until V[x].
@@ -411,7 +424,7 @@ public class Operation {
 		for (int i = 0; i <= x; i++) {
 			machine.setMemory(machine.getI() + i, machine.getV(i));
 		}
-		System.out.println("OP Fx55 LD [I] " + Integer.toHexString(machine.getI()) + " Vx " + Integer.toHexString(machine.getV(x)));
+		//System.out.println("OP Fx55 LD [I] " + Integer.toHexString(machine.getI()) + " Vx " + Integer.toHexString(machine.getV(x)));
 	}
 
 	// 0xFx65: Read from memory[I] registers an load into registers: V[0] until V[x].
@@ -419,7 +432,7 @@ public class Operation {
 		for (int i = 0; i <=x; i++) {
 			machine.setV(i, machine.getMemory(machine.getI() + i));
 		}
-		System.out.println("OP Fx65 LD Vx " + Integer.toHexString(machine.getV(x)) + " [I] " + Integer.toHexString(machine.getI()));
+		//System.out.println("OP Fx65 LD Vx " + Integer.toHexString(machine.getV(x)) + " [I] " + Integer.toHexString(machine.getI()));
 	}
 	// ********* End OP 0xF cases
 
