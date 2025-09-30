@@ -16,7 +16,8 @@ public class Operation {
 	 */
 	public void executeInstruction(Machine machine, int instruction) {
 		// OP variables (bitwise expressions)
-		int op = (instruction >> 12) & 0xF;		
+		int op = (instruction >> 12) & 0xF;
+		logger.debug("Execute OP {}", Integer.toHexString(op));
 		
 		switch (op) {
 			case 0:
@@ -152,9 +153,11 @@ public class Operation {
 	// 0x6xkk: V[x] = kk.
 	private void doOP0x6(Machine machine, int instruction) {
 		x = (instruction >> 8) & 0xF;
-		kk = instruction & 0xFF;
+		kk = instruction & 0xFF;		
 		
 		machine.setV(x, (byte) kk);
+		
+		logger.debug("Executed instruction 0x6. x {} - kk {}", x, kk);
 		
 		//System.out.println("OP 6 LD Vx " + Integer.toHexString(machine.getV(x)) + " byte " + Integer.toHexString(kk));
 	}
@@ -204,8 +207,7 @@ public class Operation {
 				break;
 			default:
 				logger.error("Error, OP 0x8 doesn't exists {}", Integer.toHexString(nibble));
-		}
-		logger.error("Error, OP 0x8 out of switch");
+		}		
 	}
 
 	/*
@@ -369,8 +371,7 @@ public class Operation {
 			default:
 				logger.error("Error, OP 0xF doesn't exists {}", kk);						
 		}
-		//System.out.println("OP F");
-		logger.error("Error, OP 0xF out of switch");
+		//System.out.println("OP F");		
 	}	
 
 	// 0x0Fx07: V[x] = DT.

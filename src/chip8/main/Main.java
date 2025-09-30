@@ -3,6 +3,8 @@ package chip8.main;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ public class Main {
 		// Leemos fichero.
 		try {			
 			main.readROMToMemory(machine, args[0]);
+			logger.debug("Read ROM");
 			byte[] mem = machine.getMemory();
 			
 			int i = 0;
@@ -46,13 +49,14 @@ public class Main {
 				byteAlto = mem[machine.getPc()];				
 				machine.setPc(++i);
 				if (machine.getPc() < mem.length) { 
-					byteBajo = mem[machine.getPc()];					
+					byteBajo = mem[machine.getPc()];
+					machine.setPc(++i);
 				}				
 
 				int instruction = byteAlto << 8 | byteBajo;
 				
 				
-				logger.debug("Instruction {}", Integer.toHexString(instruction));
+				logger.debug("Instruction int {} hex {}", instruction, Integer.toHexString(instruction));
 				// Logging the machine state before execute operation
 				logger.debug("Machine memory before execution {}",        machine.getMemory());
 				logger.debug("Machine v registers before execution {}",   machine.getV());
@@ -62,9 +66,8 @@ public class Main {
 				logger.debug("Machine pc register before execution {}",   machine.getPc());
 				logger.debug("Machine sp register before execution {}",   machine.getSp());
 				logger.debug("Machine stack before execution {}",         machine.getStack());
-				
-				process.executeInstruction(machine, instruction);								
-				machine.setPc(++i);				
+								
+				process.executeInstruction(machine, instruction);
 
 				// Logging the machine state after execute operation
 				logger.debug("Machine memory after execution {}",        machine.getMemory());
@@ -90,11 +93,10 @@ public class Main {
 	 * Read ROM file and load the information to memory machine.
 	 */
 	private void readROMToMemory(Machine m, String romPath) throws FileNotFoundException, IOException {
-		//String rutaArchivo = "C:/tmp/pd.ch8";
-		//FileInputStream fis = new FileInputStream(rutaArchivo);
-		FileInputStream fis = new FileInputStream(romPath);
 		// TODO: Programs must start at 0x200. Prior memory location are for the interpreter.
-		m.setMemory(fis.readAllBytes());
-		fis.close();
+		byte[] romBytes = Files.readAllBytes(Paths.get(romPath));
+		for (int i = 0; i < romBytes.length; i++) {
+			m.setMemory(i, romBytes[i]);
+		}
 	}
 }
