@@ -85,7 +85,7 @@ public class Main {
 	}
 	
 	private void ciclo(Machine m) {
-		System.out.println("Hola");
+		System.out.println("Hola!");
 	}
 	
 	/*
